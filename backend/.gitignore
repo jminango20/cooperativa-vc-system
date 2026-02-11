@@ -1,0 +1,18 @@
+# Node modules
+node_modules/
+
+# Environment variables (¡NUNCA subir al repositorio!)
+.env
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
