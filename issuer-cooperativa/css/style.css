@@ -1,0 +1,357 @@
+/* ============================================
+   SISTEMA DE DISEÑO - COOPERATIVA SEMEAR
+   ============================================
+   Paleta de colores Embrapa + Semear Digital
+*/
+
+:root {
+  /* Colores principales */
+  --azul-primario: #003D82;
+  --verde-embrapa: #00A859;
+  --verde-semear: #8CC63F;
+  --azul-semear: #0066B3;
+
+  /* Colores neutros */
+  --fondo: #F5F5F5;
+  --blanco: #FFFFFF;
+  --texto: #333333;
+  --texto-secundario: #666666;
+
+  /* Espaciado */
+  --gap-sm: 8px;
+  --gap-md: 16px;
+  --gap-lg: 24px;
+  --gap-xl: 32px;
+
+  /* Sombras */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* ============================================
+   RESET Y BASE
+   ============================================ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background-color: var(--fondo);
+  color: var(--texto);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ============================================
+   HEADER FIXO
+   ============================================ */
+
+.header {
+  background-color: var(--blanco);
+  box-shadow: var(--shadow-md);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 16px 32px;
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-lg);
+}
+
+.header-logo {
+  height: 50px;
+  width: auto;
+}
+
+.header-title {
+  flex: 1;
+  text-align: center;
+}
+
+.header-title h1 {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--azul-primario);
+  margin-bottom: 4px;
+}
+
+.header-title p {
+  font-size: 14px;
+  color: var(--texto-secundario);
+}
+
+/* ============================================
+   CONTAINER PRINCIPAL
+   ============================================ */
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--gap-xl);
+}
+
+/* ============================================
+   LAYOUT GRID
+   ============================================ */
+
+.layout-grid {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: var(--gap-xl);
+}
+
+/* ============================================
+   FORMULARIO DE EMISIÓN
+   ============================================ */
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-lg);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap-md);
+}
+
+.form-row.full-width {
+  grid-template-columns: 1fr;
+}
+
+/* ============================================
+   INFO RECIBO (dentro del modal)
+   ============================================ */
+
+.info-recibo {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 24px 0;
+  text-align: left;
+}
+
+.info-recibo-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.info-recibo-item:last-child {
+  border-bottom: none;
+}
+
+.info-recibo-label {
+  font-weight: 600;
+  color: var(--texto-secundario);
+}
+
+.info-recibo-value {
+  font-weight: 700;
+  color: var(--texto);
+}
+
+/* ============================================
+   QR CODE
+   ============================================ */
+
+.qr-container {
+  display: flex;
+  justify-content: center;
+  margin: 24px 0;
+  padding: 20px;
+  background-color: var(--blanco);
+  border-radius: 12px;
+}
+
+#qrcode canvas {
+  border: 4px solid var(--azul-primario);
+  border-radius: 8px;
+}
+
+#qrcode img {
+  border: 4px solid var(--azul-primario);
+  border-radius: 8px;
+}
+
+/* ============================================
+   HISTÓRICO (SIDEBAR)
+   ============================================ */
+
+.historico-section {
+  position: sticky;
+  top: 100px;
+  height: fit-content;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+}
+
+.historico-titulo {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--azul-primario);
+  margin-bottom: 16px;
+}
+
+.historico-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.historico-item {
+  background-color: var(--blanco);
+  border-radius: 8px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-left: 4px solid var(--verde-semear);
+}
+
+.historico-item:hover {
+  transform: translateX(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.historico-item-time {
+  font-size: 12px;
+  color: var(--texto-secundario);
+  margin-bottom: 4px;
+}
+
+.historico-item-nome {
+  font-weight: 600;
+  color: var(--texto);
+  margin-bottom: 4px;
+}
+
+.historico-item-produto {
+  font-size: 14px;
+  color: var(--texto-secundario);
+}
+
+.historico-empty {
+  text-align: center;
+  padding: 32px;
+  color: var(--texto-secundario);
+  font-style: italic;
+}
+
+/* ============================================
+   INSTRUCCIONES
+   ============================================ */
+
+.instruccion-box {
+  background-color: #e3f2fd;
+  border-left: 4px solid var(--azul-semear);
+  padding: 16px;
+  border-radius: 8px;
+  margin: 20px 0;
+}
+
+.instruccion-box p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--texto);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .layout-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .historico-section {
+    position: relative;
+    top: 0;
+    max-height: none;
+  }
+
+  .header-title h1 {
+    font-size: 18px;
+  }
+
+  .header-title p {
+    font-size: 12px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    gap: var(--gap-sm);
+    padding: 16px;
+  }
+
+  .header-logo {
+    height: 40px;
+  }
+
+  .header-title {
+    text-align: center;
+  }
+
+  .header-title h1 {
+    font-size: 16px;
+  }
+
+  .container {
+    padding: var(--gap-md);
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .modal {
+    padding: 24px;
+    width: 95%;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
+
+  #qrcode {
+    width: 100% !important;
+    height: auto !important;
+  }
+}
+
+/* ============================================
+   UTILIDADES
+   ============================================ */
+
+.text-center {
+  text-align: center;
+}
+
+.mt-1 { margin-top: var(--gap-sm); }
+.mt-2 { margin-top: var(--gap-md); }
+.mt-3 { margin-top: var(--gap-lg); }
+
+.mb-1 { margin-bottom: var(--gap-sm); }
+.mb-2 { margin-bottom: var(--gap-md); }
+.mb-3 { margin-bottom: var(--gap-lg); }
+
+.hidden {
+  display: none !important;
+}

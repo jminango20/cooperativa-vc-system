@@ -1,0 +1,12 @@
+<!-- logo-semear.svg -->
+<svg width="200" height="80" viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
+  <!-- "semear" en verde claro -->
+  <text x="10" y="35" font-family="Arial, sans-serif" font-size="32" font-weight="300" fill="#8CC63F">semear</text>
+
+  <!-- "digital" en azul -->
+  <text x="10" y="65" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="#0066B3">digital</text>
+
+  <!-- Detalle decorativo (ondas) -->
+  <path d="M 160 30 Q 170 25 180 30 Q 190 35 200 30" stroke="#8CC63F" stroke-width="3" fill="none"/>
+  <path d="M 160 60 Q 170 55 180 60 Q 190 65 200 60" stroke="#0066B3" stroke-width="3" fill="none"/>
+</svg>

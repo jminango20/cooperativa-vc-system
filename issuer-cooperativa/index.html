@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sistema de Emissão de Recibos Digitais - Cooperativa Semear">
+  <title>Emissor VC - Cooperativa Semear Digital</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+
+  <!-- ============================================
+       HEADER FIXO
+       ============================================ -->
+  <header class="header">
+    <div class="header-content">
+      <!-- Logo Embrapa -->
+      <img src="assets/logo-embrapa.svg" alt="Embrapa" class="header-logo">
+
+      <!-- Título -->
+      <div class="header-title">
+        <h1>Sistema de Emissão de Recibos Digitais</h1>
+        <p>Cooperativa Semear Digital <span class="badge badge-success">Issuer</span></p>
+      </div>
+
+      <!-- Logo Semear -->
+      <img src="assets/logo-semear.svg" alt="Semear Digital" class="header-logo">
+    </div>
+  </header>
+
+  <!-- ============================================
+       CONTAINER PRINCIPAL
+       ============================================ -->
+  <main class="container">
+    <div class="layout-grid">
+
+      <!-- ============================================
+           FORMULÁRIO DE EMISSÃO
+           ============================================ -->
+      <section class="form-section">
+        <div class="card">
+          <h2 class="card-title">📄 Emitir Recibo Digital</h2>
+
+          <!-- Alertas (hidden por padrão) -->
+          <div id="alert-container"></div>
+
+          <!-- Formulário -->
+          <form id="form-emitir">
+
+            <!-- CPF do Produtor -->
+            <div class="input-group">
+              <label for="cpf" class="input-label required">CPF do Produtor</label>
+              <input
+                type="text"
+                id="cpf"
+                class="input-field"
+                placeholder="000.000.000-00"
+                maxlength="14"
+                required
+                autocomplete="off"
+              >
+              <div class="input-error">CPF inválido</div>
+            </div>
+
+            <!-- Nome do Produtor -->
+            <div class="input-group">
+              <label for="nome" class="input-label required">Nome do Produtor</label>
+              <input
+                type="text"
+                id="nome"
+                class="input-field"
+                placeholder="Ex: João da Silva"
+                required
+              >
+              <div class="input-error">Nome é obrigatório</div>
+            </div>
+
+            <!-- Produto e Quantidade -->
+            <div class="form-row">
+              <div class="input-group">
+                <label for="produto" class="input-label required">Produto</label>
+                <select id="produto" class="select-field" required>
+                  <option value="">Selecione...</option>
+                  <option value="Leite cru">Leite cru</option>
+                  <option value="Queijo">Queijo</option>
+                  <option value="Manteiga">Manteiga</option>
+                  <option value="Iogurte">Iogurte</option>
+                  <option value="Requeijão">Requeijão</option>
+                  <option value="Outros">Outros</option>
+                </select>
+                <div class="input-error">Selecione um produto</div>
+              </div>
+
+              <div class="input-group">
+                <label for="quantidade" class="input-label required">Quantidade</label>
+                <input
+                  type="number"
+                  id="quantidade"
+                  class="input-field"
+                  placeholder="Ex: 50"
+                  min="0.01"
+                  step="0.01"
+                  required
+                >
+                <div class="input-error">Quantidade deve ser maior que 0</div>
+              </div>
+            </div>
+
+            <!-- Unidade -->
+            <div class="input-group">
+              <label for="unidade" class="input-label required">Unidade</label>
+              <select id="unidade" class="select-field" required>
+                <option value="">Selecione...</option>
+                <option value="Litros">Litros</option>
+                <option value="Kg">Kg (Quilogramas)</option>
+                <option value="Unidades">Unidades</option>
+                <option value="Toneladas">Toneladas</option>
+              </select>
+              <div class="input-error">Selecione uma unidade</div>
+            </div>
+
+            <!-- Botão Submit -->
+            <button type="submit" class="btn btn-primary" id="btn-emitir">
+              <span id="btn-text">📄 Emitir Recibo Digital</span>
+              <span id="btn-loading" class="hidden">
+                <div class="spinner"></div>
+              </span>
+            </button>
+
+          </form>
+        </div>
+      </section>
+
+      <!-- ============================================
+           HISTÓRICO (SIDEBAR)
+           ============================================ -->
+      <aside class="historico-section">
+        <div class="card">
+          <h3 class="historico-titulo">🕐 Últimos Recibos</h3>
+          <div id="historico-lista" class="historico-lista">
+            <div class="historico-empty">Nenhum recibo emitido ainda</div>
+          </div>
+        </div>
+      </aside>
+
+    </div>
+  </main>
+
+  <!-- ============================================
+       MODAL QR CODE
+       ============================================ -->
+  <div id="modal-qr" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title">✅ Recibo Emitido com Sucesso!</h2>
+        <p class="modal-subtitle">O produtor deve escanear este código QR</p>
+      </div>
+
+      <div class="modal-content">
+        <!-- QR Code -->
+        <div class="qr-container">
+          <div id="qrcode"></div>
+        </div>
+
+        <!-- Info do Recibo -->
+        <div class="info-recibo">
+          <div class="info-recibo-item">
+            <span class="info-recibo-label">👤 Produtor:</span>
+            <span class="info-recibo-value" id="modal-nome">-</span>
+          </div>
+          <div class="info-recibo-item">
+            <span class="info-recibo-label">📦 Produto:</span>
+            <span class="info-recibo-value" id="modal-produto">-</span>
+          </div>
+          <div class="info-recibo-item">
+            <span class="info-recibo-label">📊 Quantidade:</span>
+            <span class="info-recibo-value" id="modal-quantidade">-</span>
+          </div>
+          <div class="info-recibo-item">
+            <span class="info-recibo-label">🕐 Data/Hora:</span>
+            <span class="info-recibo-value" id="modal-data">-</span>
+          </div>
+        </div>
+
+        <!-- Instrução -->
+        <div class="instruccion-box">
+          <p>
+            <strong>📱 Próximo passo:</strong><br>
+            O produtor deve abrir o app <strong>Semear Wallet</strong> e escanear este código QR para guardar seu recibo digital.
+          </p>
+        </div>
+
+        <!-- Ações -->
+        <div class="modal-actions">
+          <button class="btn btn-secondary" onclick="descargarQR('qrcode', 'recibo-digital.png')">
+            💾 Baixar QR
+          </button>
+          <button class="btn btn-primary" onclick="fecharModal()">
+            📄 Emitir Novo Recibo
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================
+       SCRIPTS
+       ============================================ -->
+
+  <!-- QRCode.js library (CDN) - davidshimjs version -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <!-- Scripts da aplicação -->
+  <script src="js/config.js"></script>
+  <script src="js/validators.js"></script>
+  <script src="js/qr-generator.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>

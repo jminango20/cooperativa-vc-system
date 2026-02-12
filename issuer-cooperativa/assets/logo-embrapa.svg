@@ -1,0 +1,11 @@
+<!-- logo-embrapa.svg -->
+<svg width="200" height="60" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+  <!-- Parte "Em" en azul -->
+  <text x="10" y="45" font-family="Arial, sans-serif" font-size="36" font-weight="bold" fill="#003D82">Em</text>
+
+  <!-- Parte "brapa" en azul -->
+  <text x="60" y="45" font-family="Arial, sans-serif" font-size="36" font-weight="bold" fill="#003D82">brapa</text>
+
+  <!-- Forma verde característica -->
+  <path d="M 58 8 Q 80 8 90 18 Q 100 28 100 45 L 58 45 Z" fill="#00A859"/>
+</svg>
