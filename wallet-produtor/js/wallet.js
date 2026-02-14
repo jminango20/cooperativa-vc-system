@@ -39,8 +39,32 @@ async function initDB() {
   });
 }
 
+// Verificar si VC ya existe (por JWT)
+async function vcExiste(vcJWT) {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction([STORE_NAME], 'readonly');
+    const store = transaction.objectStore(STORE_NAME);
+    const request = store.getAll();
+
+    request.onsuccess = () => {
+      const existe = request.result.some(vc => vc.vcJWT === vcJWT);
+      resolve(existe);
+    };
+
+    request.onerror = () => reject(request.error);
+  });
+}
+
 // Guardar VC
 async function guardarVC(vcData) {
+  // Verificar si ya existe
+  const yaExiste = await vcExiste(vcData.vcJWT);
+
+  if (yaExiste) {
+    console.log('ℹ️ VC ya existe, no se guarda duplicado');
+    throw new Error('Este recibo ya está guardado en tu wallet');
+  }
+
   return new Promise((resolve, reject) => {
     const transaction = db.transaction([STORE_NAME], 'readwrite');
     const store = transaction.objectStore(STORE_NAME);
