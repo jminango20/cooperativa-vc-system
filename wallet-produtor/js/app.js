@@ -73,6 +73,12 @@ function configurarEventListeners() {
   if (btnCompartir) {
     btnCompartir.addEventListener('click', compartirRecibo);
   }
+
+  // Botón borrar todos
+  const btnBorrarTodos = document.getElementById('btn-borrar-todos');
+  if (btnBorrarTodos) {
+    btnBorrarTodos.addEventListener('click', borrarTodosRecibos);
+  }
 }
 
 // ============================================
@@ -390,6 +396,48 @@ function formatarDataCompleta(isoString) {
 function formatarCPF(cpf) {
   cpf = cpf.replace(/\D/g, '');
   return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+}
+
+// ============================================
+// BORRAR TODOS LOS RECIBOS
+// ============================================
+async function borrarTodosRecibos() {
+  const count = await contarVCs();
+
+  if (count === 0) {
+    mostrarError('Não há recibos para deletar');
+    return;
+  }
+
+  const confirmar = confirm(`Tem certeza que deseja deletar TODOS os ${count} recibos?\n\nEsta ação não pode ser desfeita.`);
+
+  if (!confirmar) {
+    return;
+  }
+
+  try {
+    mostrarLoading('Deletando recibos...');
+
+    // Obtener todos los IDs
+    const todos = await obtenerTodosVCs();
+
+    // Eliminar uno por uno
+    for (const recibo of todos) {
+      await eliminarVC(recibo.id);
+    }
+
+    // Recargar lista
+    await cargarRecibos();
+    actualizarBadge();
+
+    ocultarLoading();
+    mostrarExito(`✅ ${count} recibo(s) deletado(s) com sucesso!`);
+
+  } catch (error) {
+    console.error('❌ Error al borrar recibos:', error);
+    ocultarLoading();
+    mostrarError('Erro ao deletar recibos');
+  }
 }
 
 function mostrarLoading(mensaje) {
