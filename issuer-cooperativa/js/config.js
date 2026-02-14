@@ -26,7 +26,7 @@ const CONFIG = {
 if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
   CONFIG.ENVIRONMENT = 'production';
   // En producción, cambiar a la URL real del backend
-  // CONFIG.API_URL = 'https://api-cooperativa.onrender.com';
+  CONFIG.API_URL = 'https://cooperativa-vc-backend.onrender.com';
 }
 
 console.log('🚀 Config loaded:', CONFIG);
