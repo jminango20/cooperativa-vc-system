@@ -381,3 +381,16 @@ function reabrirModalVC(index) {
 }
 
 console.log('✅ App.js loaded');
+
+// Borrar histórico
+const btnBorrarHistorico = document.getElementById('btn-borrar-historico');
+if (btnBorrarHistorico) {
+  btnBorrarHistorico.addEventListener('click', () => {
+    if (confirm('¿Borrar TODO el histórico?\n\nEsta acción no se puede deshacer.')) {
+      localStorage.removeItem('historico_vcs');
+      historicoVCs = [];
+      renderizarHistorico();
+      mostrarExito('Histórico borrado');
+    }
+  });
+}

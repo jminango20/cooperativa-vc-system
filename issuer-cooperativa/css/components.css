@@ -302,3 +302,28 @@
   color: #0c5460;
   border-left: 4px solid var(--azul-semear);
 }
+
+/* HISTÓRICO HEADER */
+.historico-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.btn-borrar-historico {
+  background: rgba(220, 53, 69, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  font-size: 16px;
+  cursor: pointer;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.btn-borrar-historico:hover {
+  background: rgba(220, 53, 69, 1);
+  transform: scale(1.05);
+}
