@@ -8,7 +8,8 @@ const router = express.Router();
 
 // Importar servicios
 const { emitirVC } = require('../services/vc-issuer');
-const { guardarVC, obtenerVCsPorCPF, obtenerEstadisticas } = require('../services/vc-storage');
+const { guardarVC, obtenerVCsPorCPF, obtenerEstadisticas, obtenerVCPorId } = require('../services/vc-storage');
+const { guardarVCEnMemoria, obtenerVCDesdeMemoria } = require('../services/vc-memory-storage');
 const { validarProdutor, validarEntrega, sanitizarCPF } = require('../utils/validators');
 const logger = require('../utils/logger');
 const { cooperativaDID } = require('../config/did');
@@ -61,22 +62,48 @@ router.post('/emitir-vc', async (req, res) => {
     const vcJWT = await emitirVC(produtorData, entregaData);
 
     // ============================================
-    // 4. GUARDAR EN BASE DE DATOS
+    // 4. GUARDAR EN BASE DE DATOS (con fallback a memoria)
     // ============================================
-    await guardarVC(vcJWT, produtorData, entregaData);
+    let vcId = null;
+    try {
+      // Intentar guardar en Supabase primero
+      const registro = await guardarVC(vcJWT, produtorData, entregaData);
+      vcId = registro.id;
+      logger.info('✅ VC guardado en Supabase', { id: vcId });
+    } catch (dbError) {
+      // Fallback: guardar en memoria si Supabase falla
+      logger.warn('⚠️ Supabase no disponible, usando almacenamiento en memoria', {
+        error: dbError.message
+      });
+
+      try {
+        const registroMemoria = guardarVCEnMemoria(vcJWT, produtorData, entregaData);
+        vcId = registroMemoria.id;
+        logger.info('✅ VC guardado en memoria (TTL: 24h)', { id: vcId });
+      } catch (memError) {
+        logger.error('❌ Error al guardar en memoria', { error: memError.message });
+        // Continuar sin ID (retornará JWT completo como fallback)
+      }
+    }
 
     // ============================================
     // 5. RESPONDER CON ÉXITO
     // ============================================
-    logger.info('✅ VC emitido y guardado correctamente', {
+    logger.info('✅ VC emitido correctamente', {
       produtor: produtorData.nome,
-      cpf: cpfLimpio
+      cpf: cpfLimpio,
+      vcId
     });
+
+    // Generar URL para el QR (ID corto)
+    const vcUrl = vcId ? `${process.env.API_URL || 'http://localhost:3000'}/api/vc/${vcId}` : null;
 
     return res.status(201).json({
       success: true,
-      vcJWT,           // El JWT completo (Verifiable Credential)
-      qrData: vcJWT,   // Mismo JWT para generar QR
+      vcJWT,           // El JWT completo (para backup)
+      vcId,            // UUID del VC
+      vcUrl,           // URL para obtener el VC
+      qrData: vcUrl || vcJWT, // ID corto preferido, JWT como fallback
       message: 'Verifiable Credential emitido exitosamente'
     });
 
@@ -86,6 +113,62 @@ router.post('/emitir-vc', async (req, res) => {
     return res.status(500).json({
       success: false,
       error: 'Error al emitir el Verifiable Credential',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+// ============================================
+// GET /api/vc/:id
+// ============================================
+// Obtiene un VC específico por su ID (para escaneo QR)
+router.get('/vc/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Validar que el ID sea un UUID válido
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(id)) {
+      return res.status(400).json({
+        success: false,
+        error: 'ID inválido'
+      });
+    }
+
+    let vc;
+
+    // Intentar obtener de Supabase primero
+    try {
+      vc = await obtenerVCPorId(id);
+      logger.info('✅ VC obtenido de Supabase', { id });
+    } catch (dbError) {
+      // Fallback: buscar en memoria
+      logger.warn('⚠️ Buscando en memoria (Supabase no disponible)');
+      vc = obtenerVCDesdeMemoria(id);
+      logger.info('✅ VC obtenido de memoria', { id });
+    }
+
+    return res.json({
+      success: true,
+      vcJWT: vc.vc_jwt,
+      produtor: {
+        nome: vc.nome_produtor,
+        cpf: vc.cpf_produtor
+      },
+      entrega: {
+        produto: vc.produto,
+        quantidade: vc.quantidade,
+        unidade: vc.unidade
+      },
+      emitidoEm: vc.created_at
+    });
+
+  } catch (error) {
+    logger.error('❌ Error en /api/vc/:id', { error: error.message });
+
+    return res.status(404).json({
+      success: false,
+      error: 'VC no encontrado',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }

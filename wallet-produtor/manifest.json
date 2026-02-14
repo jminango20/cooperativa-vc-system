@@ -1,0 +1,18 @@
+{
+  "name": "Semear Wallet - Recibos Digitais",
+  "short_name": "Semear",
+  "description": "Carteira digital de recibos agrícolas",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#8CC63F",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "assets/logo-semear.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

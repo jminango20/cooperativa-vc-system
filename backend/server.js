@@ -25,16 +25,19 @@ const PORT = process.env.PORT || 3000;
 app.use(helmet());
 
 // CORS: permitir peticiones desde frontends en otros dominios
-const allowedOrigins = process.env.ALLOWED_ORIGINS
-  ? process.env.ALLOWED_ORIGINS.split(',')
-  : ['http://localhost:3000', 'http://localhost:5173'];
+const allowedOriginsEnv = process.env.ALLOWED_ORIGINS || 'http://localhost:3000,http://localhost:5173';
+const allowedOrigins = allowedOriginsEnv.split(',');
+const allowAll = allowedOrigins.includes('*');
 
 app.use(cors({
   origin: function (origin, callback) {
     // Permitir peticiones sin origin (ej: Postman, curl)
     if (!origin) return callback(null, true);
 
-    if (allowedOrigins.indexOf(origin) !== -1) {
+    // Si está en modo desarrollo con *, permitir todo
+    if (allowAll) {
+      callback(null, true);
+    } else if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
       logger.warn('⚠️ Origen bloqueado por CORS', { origin });
@@ -132,7 +135,7 @@ app.use((err, req, res, next) => {
 // ============================================
 // ARRANCAR SERVIDOR
 // ============================================
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   logger.info(`
 ╔════════════════════════════════════════════════════════╗
 ║                                                        ║
@@ -140,7 +143,8 @@ app.listen(PORT, () => {
 ║                                                        ║
 ║   🚀 Servidor corriendo en puerto ${PORT}               ║
 ║   🌍 Entorno: ${process.env.NODE_ENV || 'development'}                    ║
-║   📡 API disponible en: http://localhost:${PORT}        ║
+║   📡 API Local: http://localhost:${PORT}                ║
+║   🌐 API Red: ${process.env.API_URL || `http://localhost:${PORT}`}         ║
 ║                                                        ║
 ╚════════════════════════════════════════════════════════╝
   `);

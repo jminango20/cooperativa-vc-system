@@ -36,7 +36,7 @@ function generarQR(elementId, data, size = 300) {
       height: size,
       colorDark: '#003D82',  // Azul Embrapa
       colorLight: '#FFFFFF',  // Fondo blanco
-      correctLevel: window.QRCode.CorrectLevel.H // Nivel alto de corrección
+      correctLevel: window.QRCode.CorrectLevel.L // Nivel bajo = más fácil de escanear
     });
 
     console.log('✅ QR code generado correctamente');

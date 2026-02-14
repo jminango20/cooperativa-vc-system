@@ -179,11 +179,11 @@ async function emitirVC(dados) {
     // Éxito!
     console.log('✅ VC emitido:', resultado);
 
-    // Guardar en histórico
-    guardarEnHistorico(dados, resultado.vcJWT);
+    // Guardar en histórico (con JWT completo para backup local)
+    guardarEnHistorico(dados, resultado.vcJWT, resultado.vcId);
 
-    // Mostrar modal con QR
-    mostrarModalQR(dados, resultado.vcJWT);
+    // Mostrar modal con QR (usando URL corta o JWT como fallback)
+    mostrarModalQR(dados, resultado.qrData, resultado.vcId);
 
     // Limpiar formulario
     limpiarFormulario();
@@ -201,9 +201,9 @@ async function emitirVC(dados) {
 // ============================================
 // MOSTRAR MODAL CON QR CODE
 // ============================================
-function mostrarModalQR(dados, vcJWT) {
+function mostrarModalQR(dados, qrData, vcId) {
   // Guardar VC para poder re-abrir el modal
-  ultimoVC = { dados, vcJWT };
+  ultimoVC = { dados, qrData, vcId };
 
   // Llenar información del recibo
   document.getElementById('modal-nome').textContent = dados.produtor.nome;
@@ -213,8 +213,9 @@ function mostrarModalQR(dados, vcJWT) {
   document.getElementById('modal-data').textContent =
     new Date().toLocaleString('pt-BR');
 
-  // Generar QR code
-  generarQR('qrcode', vcJWT, 300);
+  // Generar QR code (400px para mejor escaneo)
+  // Ahora qrData es una URL corta en lugar del JWT completo
+  generarQR('qrcode', qrData, 400);
 
   // Mostrar modal
   const modal = document.getElementById('modal-qr');
@@ -292,7 +293,7 @@ function limpiarFormulario() {
 // ============================================
 // HISTÓRICO LOCAL
 // ============================================
-function guardarEnHistorico(dados, vcJWT) {
+function guardarEnHistorico(dados, vcJWT, vcId) {
   const item = {
     timestamp: new Date().toISOString(),
     produtor: dados.produtor.nome,
@@ -300,7 +301,8 @@ function guardarEnHistorico(dados, vcJWT) {
     produto: dados.entrega.produto,
     quantidade: dados.entrega.quantidade,
     unidade: dados.entrega.unidade,
-    vcJWT
+    vcJWT,
+    vcId
   };
 
   // Añadir al inicio del array
@@ -370,7 +372,12 @@ function reabrirModalVC(index) {
     }
   };
 
-  mostrarModalQR(dados, item.vcJWT);
+  // Si tiene vcId, usar URL corta; sino usar JWT completo (retrocompatibilidad)
+  const qrData = item.vcId
+    ? `${CONFIG.API_URL}/api/vc/${item.vcId}`
+    : item.vcJWT;
+
+  mostrarModalQR(dados, qrData, item.vcId);
 }
 
 console.log('✅ App.js loaded');

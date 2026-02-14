@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Carteira digital de recibos agrícolas">
+  <meta name="theme-color" content="#8CC63F">
+  <title>Semear Wallet</title>
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/scanner.css">
+
+  <!-- Favicon -->
+  <link rel="icon" href="assets/logo-semear.svg" type="image/svg+xml">
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+    <img src="assets/logo-semear.svg" alt="Semear" class="header-logo">
+    <h1>Meus Recibos</h1>
+    <div class="badge">
+      <span id="badge-count">0</span> recibos
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="container">
+
+    <!-- BOTÓN ESCANEAR -->
+    <button id="btn-escanear" class="btn-hero">
+      📷 Escanear Novo Recibo
+    </button>
+
+    <!-- EMPTY STATE -->
+    <div id="empty-state" class="empty-state">
+      <div class="empty-state-icon">📄</div>
+      <h2>Você ainda não tem recibos</h2>
+      <p>Toque no botão acima para escanear seu primeiro recibo digital</p>
+    </div>
+
+    <!-- LISTA RECIBOS -->
+    <div id="lista-recibos" class="hidden"></div>
+
+  </main>
+
+  <!-- OVERLAY: SCANNER QR -->
+  <div id="scanner-overlay" class="overlay scanner-overlay">
+    <div class="scanner-header">
+      <h2>Escanear QR</h2>
+      <button id="btn-cerrar-scanner" class="btn-close">×</button>
+    </div>
+    <div class="scanner-content">
+      <div id="qr-reader"></div>
+      <div class="scanner-instruccion">
+        Posicione o código QR dentro do quadro
+      </div>
+    </div>
+  </div>
+
+  <!-- OVERLAY: DETALLE RECIBO -->
+  <div id="detalle-overlay" class="overlay">
+    <div class="detalle-container">
+      <div class="detalle-header">
+        <button id="btn-cerrar-detalle" class="btn-back">←</button>
+        <h2>Detalhes do Recibo</h2>
+      </div>
+
+      <div class="detalle-content">
+
+        <!-- Produtor -->
+        <div class="detalle-section">
+          <h3>👤 Produtor</h3>
+          <div class="detalle-item">
+            <span class="detalle-label">Nome:</span>
+            <span class="detalle-value" id="detalle-nome">-</span>
+          </div>
+          <div class="detalle-item">
+            <span class="detalle-label">CPF:</span>
+            <span class="detalle-value" id="detalle-cpf">-</span>
+          </div>
+        </div>
+
+        <!-- Entrega -->
+        <div class="detalle-section">
+          <h3>📦 Entrega</h3>
+          <div class="detalle-item">
+            <span class="detalle-label">Produto:</span>
+            <span class="detalle-value" id="detalle-produto">-</span>
+          </div>
+          <div class="detalle-item">
+            <span class="detalle-label">Quantidade:</span>
+            <span class="detalle-value" id="detalle-quantidade">-</span>
+          </div>
+          <div class="detalle-item">
+            <span class="detalle-label">Data:</span>
+            <span class="detalle-value" id="detalle-data">-</span>
+          </div>
+        </div>
+
+        <!-- Cooperativa -->
+        <div class="detalle-section">
+          <h3>🏢 Cooperativa</h3>
+          <div class="detalle-item">
+            <span class="detalle-label">Nome:</span>
+            <span class="detalle-value" id="detalle-cooperativa">-</span>
+          </div>
+          <div class="detalle-item">
+            <span class="detalle-label">Status:</span>
+            <span class="detalle-value">✅ Verificado</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Botones de acción -->
+      <div class="btn-actions">
+        <button id="btn-ver-qr" class="btn btn-primary">Ver QR</button>
+        <button id="btn-compartir" class="btn btn-secondary">Compartilhar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- OVERLAY: QR MODAL -->
+  <div id="qr-modal" class="overlay">
+    <div class="qr-modal-content">
+      <h2>Mostre ao Verificador</h2>
+      <div id="qr-display"></div>
+      <button id="btn-cerrar-qr-modal" class="btn btn-primary">Fechar</button>
+    </div>
+  </div>
+
+  <!-- OVERLAY: LOADING -->
+  <div id="loading-overlay" class="overlay loading-overlay">
+    <div class="loading-spinner"></div>
+    <div id="loading-text">Carregando...</div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <!-- Librerías externas -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/did-jwt@7/dist/did-jwt.umd.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <!-- App scripts -->
+  <script src="js/wallet.js"></script>
+  <script src="js/vc-verifier.js"></script>
+  <script src="js/scanner.js"></script>
+  <script src="js/app.js"></script>
+
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(() => console.log('✅ Service Worker registrado'))
+        .catch(err => console.error('❌ Error registrando SW:', err));
+    }
+  </script>
+
+</body>
+</html>
