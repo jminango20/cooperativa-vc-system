@@ -11,6 +11,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   console.log('🚀 Semear Wallet iniciado');
 
   try {
+    // Verificar si tiene DID configurado
+    const { tiene } = verificarMiDID();
+
+    if (!tiene) {
+      // Primera vez - mostrar modal de configuración
+      mostrarConfiguracionInicial();
+      return;
+    }
+
     // Inicializar IndexedDB
     await initDB();
 
@@ -196,6 +205,31 @@ async function procesarQR(qrData) {
     if (!resultado.valido) {
       throw new Error(resultado.error || 'Recibo inválido ou assinatura incorreta');
     }
+
+    // Verificar que el VC sea para MI DID
+    mostrarLoading('Verificando destinatário...');
+    const { tiene, did: miDID, cpf: miCPF } = verificarMiDID();
+
+    if (!tiene) {
+      throw new Error('Você precisa configurar sua identidade primeiro');
+    }
+
+    // Obtener el DID del VC (puede estar en credentialSubject.id o en payload.sub)
+    const vcDID = resultado.vcData.produtor?.id || resultado.payload?.sub;
+
+    if (!vcDID) {
+      throw new Error('VC não contém DID do destinatário');
+    }
+
+    // Generar mi DID desde mi CPF para comparar
+    const miDIDGenerado = await generarDIDDesdeCPF(miCPF);
+
+    // Comparar DIDs
+    if (vcDID !== miDIDGenerado) {
+      throw new Error('❌ Este recibo não é para você!\n\nEste recibo foi emitido para outro produtor.');
+    }
+
+    console.log('✅ Recibo verificado: é para o DID correto');
 
     // Guardar en IndexedDB
     const vcData = {
@@ -480,3 +514,55 @@ function mostrarError(mensaje) {
 }
 
 console.log('✅ App.js cargado');
+
+// ============================================
+// CONFIGURACIÓN INICIAL - DID
+// ============================================
+function mostrarConfiguracionInicial() {
+  const overlay = document.getElementById('config-overlay');
+  overlay.style.display = 'flex';
+
+  const input = document.getElementById('config-cpf');
+  const btn = document.getElementById('btn-configurar');
+
+  // Máscara CPF
+  input.addEventListener('input', (e) => {
+    e.target.value = formatarCPF(e.target.value);
+  });
+
+  // Configurar identidad
+  btn.addEventListener('click', async () => {
+    const cpf = input.value.replace(/\D/g, '');
+
+    if (cpf.length !== 11) {
+      alert('Por favor, digite um CPF válido');
+      return;
+    }
+
+    try {
+      mostrarLoading('Configurando identidade...');
+
+      // Generar y guardar DID
+      const { did } = await configurarMiIdentidad(cpf);
+
+      console.log('✅ Identidade configurada:', did);
+
+      // Ocultar modal
+      overlay.style.display = 'none';
+      ocultarLoading();
+
+      // Inicializar app
+      await initDB();
+      await cargarRecibos();
+      actualizarBadge();
+      configurarEventListeners();
+
+      mostrarExito('✅ Identidade configurada com sucesso!');
+
+    } catch (error) {
+      console.error('❌ Error configurando identidad:', error);
+      ocultarLoading();
+      alert('Erro ao configurar identidade');
+    }
+  });
+}

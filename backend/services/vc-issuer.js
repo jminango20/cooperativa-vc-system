@@ -5,6 +5,7 @@
 
 const { createJWT } = require('did-jwt');
 const { cooperativaDID, signer } = require('../config/did');
+const { generarDIDDesdeCPF } = require('../utils/did-generator');
 const logger = require('../utils/logger');
 
 /**
@@ -17,7 +18,13 @@ const logger = require('../utils/logger');
 async function emitirVC(produtorData, entregaData) {
   try {
     // ============================================
-    // 1. CREAR EL PAYLOAD DEL VC
+    // 1. GENERAR DID DEL PRODUCTOR
+    // ============================================
+    const produtorDID = generarDIDDesdeCPF(produtorData.cpf);
+    logger.info('🔑 DID del productor generado', { did: produtorDID });
+
+    // ============================================
+    // 2. CREAR EL PAYLOAD DEL VC
     // ============================================
     // El payload es el "contenido" de la credencial.
     // Sigue el estándar W3C Verifiable Credentials 2.0
@@ -30,7 +37,7 @@ async function emitirVC(produtorData, entregaData) {
       // CAMPOS JWT ESTÁNDAR
       // ============================================
       iss: cooperativaDID,                                  // Issuer (quien emite): DID de la cooperativa
-      sub: `did:key:produtor:${produtorData.cpf}`,         // Subject (para quién): DID del productor
+      sub: produtorDID,                                     // Subject (para quién): DID del productor
       iat: ahora,                                           // Issued at (cuándo se emitió)
       exp: unAñoDespues,                                    // Expiration (cuándo expira)
 
@@ -48,7 +55,7 @@ async function emitirVC(produtorData, entregaData) {
         ],
         credentialSubject: {
           // ID del sujeto (quien recibe la credencial)
-          id: `did:key:produtor:${produtorData.cpf}`,
+          id: produtorDID,
 
           // Datos del productor
           produtor: {

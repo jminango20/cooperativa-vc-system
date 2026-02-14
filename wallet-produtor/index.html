@@ -135,6 +135,30 @@
     </div>
   </div>
 
+  <!-- OVERLAY: CONFIGURACIÓN INICIAL -->
+  <div id="config-overlay" class="overlay" style="display: none;">
+    <div class="config-container">
+      <h2>👋 Bem-vindo ao Semear Wallet!</h2>
+      <p>Para começar, precisamos do seu CPF para criar sua identidade digital.</p>
+
+      <div class="config-form">
+        <label for="config-cpf">Seu CPF:</label>
+        <input
+          type="text"
+          id="config-cpf"
+          placeholder="000.000.000-00"
+          maxlength="14"
+          class="input-field"
+        >
+        <button id="btn-configurar" class="btn btn-primary">Configurar Identidade</button>
+      </div>
+
+      <div class="config-info">
+        <p><strong>🔒 Segurança:</strong> Seu CPF é usado para gerar sua identidade digital única (DID). Nenhum dado é enviado a servidores externos.</p>
+      </div>
+    </div>
+  </div>
+
   <!-- OVERLAY: LOADING -->
   <div id="loading-overlay" class="overlay loading-overlay">
     <div class="loading-spinner"></div>
@@ -148,6 +172,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <!-- App scripts -->
+  <script src="js/did-generator.js"></script>
   <script src="js/wallet.js"></script>
   <script src="js/vc-verifier.js"></script>
   <script src="js/scanner.js"></script>
