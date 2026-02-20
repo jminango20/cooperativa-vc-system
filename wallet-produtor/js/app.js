@@ -122,10 +122,10 @@ function renderizarLista() {
 
   lista.innerHTML = recibosActuales.map(recibo => `
     <div class="recibo-card" onclick="verDetalle(${recibo.id})">
-      <div class="recibo-icon">📄</div>
+      <div class="recibo-icon">📋</div>
       <div class="recibo-info">
         <div class="recibo-produto">
-          ${recibo.entrega.produto} - ${recibo.entrega.quantidade} ${recibo.entrega.unidade}
+          ${recibo.entrega.tipo_analise || recibo.entrega.produto} - ${recibo.entrega.quantidade} ${recibo.entrega.unidade}
         </div>
         <div class="recibo-data">
           📅 ${formatarData(recibo.entrega.data)}
@@ -169,7 +169,7 @@ async function cerrarScanner() {
 async function procesarQR(qrData) {
   try {
     // Mostrar loading
-    mostrarLoading('Verificando recibo...');
+    mostrarLoading('Verificando certificado...');
 
     let vcJWT;
 
@@ -177,13 +177,13 @@ async function procesarQR(qrData) {
     if (qrData.startsWith('http://') || qrData.startsWith('https://')) {
       // Es una URL - hacer fetch para obtener el VC
       console.log('📥 Obteniendo VC desde:', qrData);
-      mostrarLoading('Baixando recibo...');
+      mostrarLoading('Baixando certificado...');
 
       const response = await fetch(qrData);
       const data = await response.json();
 
       if (!data.success || !data.vcJWT) {
-        throw new Error('VC não encontrado no servidor');
+        throw new Error('Certificado não encontrado no servidor');
       }
 
       vcJWT = data.vcJWT;
@@ -203,7 +203,7 @@ async function procesarQR(qrData) {
     const resultado = await verificarVC(vcJWT);
 
     if (!resultado.valido) {
-      throw new Error(resultado.error || 'Recibo inválido ou assinatura incorreta');
+      throw new Error(resultado.error || 'Certificado inválido ou assinatura incorreta');
     }
 
     // Verificar que el VC sea para MI DID
@@ -229,10 +229,10 @@ async function procesarQR(qrData) {
     const didValido = didsHistoricos.includes(vcDID);
 
     if (!didValido) {
-      throw new Error('❌ Este recibo não é para você!\n\nEste recibo foi emitido para outro produtor.');
+      throw new Error('❌ Este certificado não é para você!\n\nEste certificado foi emitido para outro produtor.');
     }
 
-    console.log('[OK] Recibo verificado: DID válido para período');
+    console.log('[OK] Certificado verificado: DID válido para período');
 
     // Guardar en IndexedDB
     const vcData = {
@@ -250,7 +250,7 @@ async function procesarQR(qrData) {
     ocultarLoading();
 
     // Mostrar éxito
-    mostrarExito('✅ Recibo salvo com sucesso!');
+    mostrarExito('✅ Certificado salvo com sucesso!');
 
   } catch (error) {
     console.error('❌ Error procesando QR:', error);
@@ -278,7 +278,7 @@ async function verDetalle(id) {
     // Llenar datos
     document.getElementById('detalle-nome').textContent = recibo.produtor.nome;
     document.getElementById('detalle-cpf').textContent = formatarCPF(recibo.produtor.cpf);
-    document.getElementById('detalle-produto').textContent = recibo.entrega.produto;
+    document.getElementById('detalle-tipo').textContent = recibo.entrega.tipo_analise || recibo.entrega.produto;
     document.getElementById('detalle-quantidade').textContent =
       `${recibo.entrega.quantidade} ${recibo.entrega.unidade}`;
     document.getElementById('detalle-data').textContent = formatarDataCompleta(recibo.entrega.data);
@@ -352,16 +352,16 @@ async function compartirRecibo() {
   }
 
   try {
-    // Obtener datos del recibo
+    // Obtener datos del certificado
     const recibo = await obtenerVCPorId(reciboId);
 
     // Crear mensaje descriptivo
-    const mensaje = `📄 *Recibo Digital - Semear*\n\n` +
+    const mensaje = `📋 *Certificado de Qualidade - Semear*\n\n` +
       `👤 Produtor: ${recibo.produtor.nome}\n` +
-      `📦 Produto: ${recibo.entrega.produto}\n` +
+      `📋 Tipo: ${recibo.entrega.tipo_analise || recibo.entrega.produto}\n` +
       `📊 Quantidade: ${recibo.entrega.quantidade} ${recibo.entrega.unidade}\n` +
       `📅 Data: ${formatarData(recibo.entrega.data)}\n\n` +
-      `Recibo verificável:\n${jwt}`;
+      `Certificado verificável:\n${jwt}`;
 
     // Web Share API (compartir por WhatsApp/Telegram/etc)
     if (navigator.share) {
@@ -371,7 +371,7 @@ async function compartirRecibo() {
         const file = new File([blob], 'recibo-semear.txt', { type: 'text/plain' });
 
         await navigator.share({
-          title: 'Recibo Digital - Semear',
+          title: 'Certificado de Qualidade - Semear',
           text: mensaje,
           files: [file]
         });
@@ -381,7 +381,7 @@ async function compartirRecibo() {
         // Si falla con archivo, intentar solo con texto
         if (error.name !== 'AbortError') {
           await navigator.share({
-            title: 'Recibo Digital - Semear',
+            title: 'Certificado de Qualidade - Semear',
             text: mensaje
           });
         }
@@ -389,7 +389,7 @@ async function compartirRecibo() {
     } else {
       // Fallback: copiar al clipboard
       await navigator.clipboard.writeText(mensaje);
-      mostrarExito('✅ Recibo copiado para a área de transferência!');
+      mostrarExito('✅ Certificado copiado para a área de transferência!');
     }
   } catch (error) {
     console.error('❌ Error al compartir:', error);
@@ -442,18 +442,18 @@ async function borrarTodosRecibos() {
   const count = await contarVCs();
 
   if (count === 0) {
-    mostrarError('Não há recibos para deletar');
+    mostrarError('Não há certificados para deletar');
     return;
   }
 
-  const confirmar = confirm(`Tem certeza que deseja deletar TODOS os ${count} recibos?\n\nEsta ação não pode ser desfeita.`);
+  const confirmar = confirm(`Tem certeza que deseja deletar TODOS os ${count} certificados?\n\nEsta ação não pode ser desfeita.`);
 
   if (!confirmar) {
     return;
   }
 
   try {
-    mostrarLoading('Deletando recibos...');
+    mostrarLoading('Deletando certificados...');
 
     // Obtener todos los IDs
     const todos = await obtenerTodosVCs();
@@ -468,12 +468,12 @@ async function borrarTodosRecibos() {
     actualizarBadge();
 
     ocultarLoading();
-    mostrarExito(`✅ ${count} recibo(s) deletado(s) com sucesso!`);
+    mostrarExito(`✅ ${count} certificado(s) deletado(s) com sucesso!`);
 
   } catch (error) {
-    console.error('❌ Error al borrar recibos:', error);
+    console.error('❌ Error al borrar certificados:', error);
     ocultarLoading();
-    mostrarError('Erro ao deletar recibos');
+    mostrarError('Erro ao deletar certificados');
   }
 }
 

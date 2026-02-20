@@ -70,12 +70,11 @@ async function handleSubmitForm(e) {
   // Obtener valores del formulario
   const cpf = document.getElementById('cpf').value.replace(/[^\d]/g, '');
   const nome = document.getElementById('nome').value.trim();
-  const produto = document.getElementById('produto').value;
+  const tipo_analise = document.getElementById('tipo_analise').value;
   const quantidade = parseFloat(document.getElementById('quantidade').value);
-  const unidade = document.getElementById('unidade').value;
 
   // Validar datos
-  if (!validarFormulario(cpf, nome, produto, quantidade, unidade)) {
+  if (!validarFormulario(cpf, nome, tipo_analise, quantidade)) {
     return;
   }
 
@@ -86,9 +85,10 @@ async function handleSubmitForm(e) {
       nome
     },
     entrega: {
-      produto,
+      produto: 'Leite',
       quantidade,
-      unidade
+      unidade: 'Litros',
+      tipo_analise
     }
   };
 
@@ -99,7 +99,7 @@ async function handleSubmitForm(e) {
 // ============================================
 // VALIDAR FORMULARIO
 // ============================================
-function validarFormulario(cpf, nome, produto, quantidade, unidade) {
+function validarFormulario(cpf, nome, tipo_analise, quantidade) {
   let valido = true;
 
   // Validar CPF
@@ -118,12 +118,12 @@ function validarFormulario(cpf, nome, produto, quantidade, unidade) {
     document.getElementById('nome').classList.remove('error');
   }
 
-  // Validar producto
-  if (!validarCampoRequerido(produto)) {
-    document.getElementById('produto').classList.add('error');
+  // Validar tipo de análise
+  if (!validarCampoRequerido(tipo_analise)) {
+    document.getElementById('tipo_analise').classList.add('error');
     valido = false;
   } else {
-    document.getElementById('produto').classList.remove('error');
+    document.getElementById('tipo_analise').classList.remove('error');
   }
 
   // Validar cantidad
@@ -132,14 +132,6 @@ function validarFormulario(cpf, nome, produto, quantidade, unidade) {
     valido = false;
   } else {
     document.getElementById('quantidade').classList.remove('error');
-  }
-
-  // Validar unidade
-  if (!validarCampoRequerido(unidade)) {
-    document.getElementById('unidade').classList.add('error');
-    valido = false;
-  } else {
-    document.getElementById('unidade').classList.remove('error');
   }
 
   if (!valido) {
@@ -173,11 +165,11 @@ async function emitirVC(dados) {
 
     // Verificar respuesta
     if (!response.ok || !resultado.success) {
-      throw new Error(resultado.error || 'Erro ao emitir recibo');
+      throw new Error(resultado.error || 'Erro ao emitir certificado');
     }
 
     // Éxito!
-    console.log('✅ VC emitido:', resultado);
+    console.log('✅ Certificado emitido:', resultado);
 
     // Guardar en histórico (con JWT completo para backup local)
     guardarEnHistorico(dados, resultado.vcJWT, resultado.vcId);
@@ -189,7 +181,7 @@ async function emitirVC(dados) {
     limpiarFormulario();
 
     // Mostrar mensaje de éxito
-    mostrarExito('Recibo digital emitido com sucesso!');
+    mostrarExito('Certificado de qualidade emitido com sucesso!');
 
   } catch (error) {
     console.error('❌ Error al emitir VC:', error);
@@ -205,9 +197,9 @@ function mostrarModalQR(dados, qrData, vcId) {
   // Guardar VC para poder re-abrir el modal
   ultimoVC = { dados, qrData, vcId };
 
-  // Llenar información del recibo
+  // Llenar información del certificado
   document.getElementById('modal-nome').textContent = dados.produtor.nome;
-  document.getElementById('modal-produto').textContent = dados.entrega.produto;
+  document.getElementById('modal-tipo').textContent = dados.entrega.tipo_analise;
   document.getElementById('modal-quantidade').textContent =
     `${dados.entrega.quantidade} ${dados.entrega.unidade}`;
   document.getElementById('modal-data').textContent =
@@ -298,7 +290,7 @@ function guardarEnHistorico(dados, vcJWT, vcId) {
     timestamp: new Date().toISOString(),
     produtor: dados.produtor.nome,
     cpf: dados.produtor.cpf,
-    produto: dados.entrega.produto,
+    tipo_analise: dados.entrega.tipo_analise,
     quantidade: dados.entrega.quantidade,
     unidade: dados.entrega.unidade,
     vcJWT,
@@ -337,7 +329,7 @@ function renderizarHistorico() {
   const lista = document.getElementById('historico-lista');
 
   if (historicoVCs.length === 0) {
-    lista.innerHTML = '<div class="historico-empty">Nenhum recibo emitido ainda</div>';
+    lista.innerHTML = '<div class="historico-empty">Nenhum certificado emitido ainda</div>';
     return;
   }
 
@@ -350,7 +342,7 @@ function renderizarHistorico() {
         👤 ${item.produtor}
       </div>
       <div class="historico-item-produto">
-        📦 ${item.produto} - ${item.quantidade} ${item.unidade}
+        📋 ${item.tipo_analise || item.produto} - ${item.quantidade} ${item.unidade}
       </div>
     </div>
   `).join('');
@@ -366,9 +358,10 @@ function reabrirModalVC(index) {
       cpf: item.cpf
     },
     entrega: {
-      produto: item.produto,
+      produto: item.produto || 'Leite',
       quantidade: item.quantidade,
-      unidade: item.unidade
+      unidade: item.unidade,
+      tipo_analise: item.tipo_analise || item.produto
     }
   };
 

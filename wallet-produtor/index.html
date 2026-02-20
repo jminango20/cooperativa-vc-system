@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Carteira digital de recibos agrícolas">
+  <meta name="description" content="Carteira digital de certificados de qualidade do leite">
   <meta name="theme-color" content="#8CC63F">
-  <title>Semear Wallet</title>
+  <title>Semear Wallet - Certificados</title>
 
   <!-- PWA Manifest -->
   <link rel="manifest" href="manifest.json">
@@ -22,11 +22,11 @@
   <!-- HEADER -->
   <header class="header">
     <img src="assets/logo-semear.svg" alt="Semear" class="header-logo">
-    <h1>Meus Recibos</h1>
+    <h1>Meus Certificados</h1>
     <div class="badge">
-      <span id="badge-count">0</span> recibos
+      <span id="badge-count">0</span> certificados
     </div>
-    <button id="btn-borrar-todos" class="btn-borrar-todos" title="Borrar todos los recibos">🗑️</button>
+    <button id="btn-borrar-todos" class="btn-borrar-todos" title="Borrar todos los certificados">🗑️</button>
   </header>
 
   <!-- MAIN CONTAINER -->
@@ -34,14 +34,14 @@
 
     <!-- BOTÓN ESCANEAR -->
     <button id="btn-escanear" class="btn-hero">
-      📷 Escanear Novo Recibo
+      📷 Escanear Novo Certificado
     </button>
 
     <!-- EMPTY STATE -->
     <div id="empty-state" class="empty-state">
-      <div class="empty-state-icon">📄</div>
-      <h2>Você ainda não tem recibos</h2>
-      <p>Toque no botão acima para escanear seu primeiro recibo digital</p>
+      <div class="empty-state-icon">📋</div>
+      <h2>Você ainda não tem certificados</h2>
+      <p>Toque no botão acima para escanear seu primeiro certificado de qualidade</p>
     </div>
 
     <!-- LISTA RECIBOS -->
@@ -68,7 +68,7 @@
     <div class="detalle-container">
       <div class="detalle-header">
         <button id="btn-cerrar-detalle" class="btn-back">←</button>
-        <h2>Detalhes do Recibo</h2>
+        <h2>Detalhes do Certificado</h2>
       </div>
 
       <div class="detalle-content">
@@ -86,12 +86,12 @@
           </div>
         </div>
 
-        <!-- Entrega -->
+        <!-- Certificado -->
         <div class="detalle-section">
-          <h3>📦 Entrega</h3>
+          <h3>📋 Certificado de Qualidade</h3>
           <div class="detalle-item">
-            <span class="detalle-label">Produto:</span>
-            <span class="detalle-value" id="detalle-produto">-</span>
+            <span class="detalle-label">Tipo:</span>
+            <span class="detalle-value" id="detalle-tipo">-</span>
           </div>
           <div class="detalle-item">
             <span class="detalle-label">Quantidade:</span>
