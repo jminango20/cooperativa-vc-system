@@ -221,15 +221,18 @@ async function procesarQR(qrData) {
       throw new Error('VC não contém DID do destinatário');
     }
 
-    // Generar mi DID desde mi CPF para comparar
-    const miDIDGenerado = await generarDIDDesdeCPF(miCPF);
+    // Generar DIDs históricos (actual + períodos anteriores) para verificación
+    mostrarLoading('Verificando período de emissão...');
+    const didsHistoricos = await generarDIDsHistoricos(miCPF);
 
-    // Comparar DIDs
-    if (vcDID !== miDIDGenerado) {
+    // Verificar si el DID del VC coincide con alguno de los períodos
+    const didValido = didsHistoricos.includes(vcDID);
+
+    if (!didValido) {
       throw new Error('❌ Este recibo não é para você!\n\nEste recibo foi emitido para outro produtor.');
     }
 
-    console.log('✅ Recibo verificado: é para o DID correto');
+    console.log('[OK] Recibo verificado: DID válido para período');
 
     // Guardar en IndexedDB
     const vcData = {
